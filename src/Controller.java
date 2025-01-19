@@ -3,16 +3,20 @@ import java.util.ArrayList;
 
 public class Controller {
 
-        private ArrayList<Bullet> b = new ArrayList<>();
-
+        private ArrayList<Bullet> bullet_list = new ArrayList<>();
+        MyFrame myFrame;
         Bullet bullet;
 
-        public void bulletMove(){
-            for(int i=0;i<b.size();i++){
-                bullet = b.get(i);
+    public Controller(MyFrame myFrame) {
+        this.myFrame = myFrame;
+    }
+
+    public void bulletMove(){
+            for(int i=0;i<bullet_list.size();i++){
+                bullet = bullet_list.get(i);
                 bullet.move();
-                if (bullet.x < 0 ) {
-                    removeBullet(bullet);
+                if (bullet.x < 0 || bullet.x > myFrame.getWidth()) {
+                    removeBullet(i);
                     i--;
                 }
 
@@ -20,20 +24,26 @@ public class Controller {
 
         }
 
-        public void render(Graphics g){
-            for (Bullet bullet : b) {
+        public void drawBullet(Graphics g){
+            for (Bullet bullet : bullet_list) {
                 bullet.draw(g);
             }
         }
 
-
-
-        public void addBullet(Bullet block){
-            b.add(block);
+        public Bullet bulletGet(int i){
+            return bullet_list.get(i);
         }
 
-        public void removeBullet(Bullet block){
-            b.remove(block);
+        public int bulletSize(){
+            return bullet_list.size();
+        }
+
+        public void addBullet(Bullet block){
+            bullet_list.add(block);
+        }
+
+        public void removeBullet(int block){
+            bullet_list.remove(block);
         }
 
 }
