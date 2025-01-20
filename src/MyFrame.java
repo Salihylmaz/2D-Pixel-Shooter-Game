@@ -10,7 +10,7 @@ public class MyFrame extends JFrame {
     Graphics graphics;
     Box player;
     ArrayList<Bullet> bullets;
-    ArrayList<Box> enemies;
+    ArrayList<Enemy> enemies;
     boolean gameOver;
     private Controller controller;
 
@@ -21,9 +21,9 @@ public class MyFrame extends JFrame {
         controller = new Controller(this);
         gameOver = false;
 
-        enemies.add(new Box(300,250,30,30,Color.RED));
-        enemies.add(new Box(300,150,30,30,Color.RED));
-        enemies.add(new Box(200,150,30,30,Color.RED));
+        enemies.add(new Enemy(300,250,30,30,Color.RED));
+        enemies.add(new Enemy(300,150,30,30,Color.RED));
+        enemies.add(new Enemy(200,150,30,30,Color.RED));
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(500,500);
@@ -33,6 +33,11 @@ public class MyFrame extends JFrame {
         // Oyun döngüsü
         Timer timer = new Timer(30, e -> {
             if (!gameOver) {
+
+                for (Enemy enemy : enemies) {
+                    enemy.moveToPlayer(player);
+                }
+
                 controller.bulletMove();
                 checkCollisions();
                 repaint();
@@ -50,7 +55,7 @@ public class MyFrame extends JFrame {
         if(player.isActive)
             player.draw(g);
 
-        for(Box enemy : enemies){ //Birden fazla düşman ekleyebiliyorum bu sayede
+        for(Enemy enemy : enemies){ //Birden fazla düşman ekleyebiliyorum bu sayede
             enemy.draw(g);
         }
         for (Bullet bullet : bullets) {
@@ -65,7 +70,7 @@ public class MyFrame extends JFrame {
 
     }
 
-    public boolean isColliding(Box enemy, Bullet bullet) {
+    public boolean isColliding(Enemy enemy, Bullet bullet) {
         return bullet.x < enemy.x + enemy.width &&  // Merminin sol kenarı düşmanın sağ kenarını geçmiyor
                 bullet.x + bullet.width > enemy.x && // Merminin sağ kenarı düşmanın sol kenarını geçmiyor
                 bullet.y < enemy.y + enemy.height && // Merminin üst kenarı düşmanın alt kenarını geçmiyor
@@ -79,7 +84,7 @@ public class MyFrame extends JFrame {
             Bullet bullet = controller.bulletGet(i);
 
             for (int j = 0; j < enemies.size(); j++) {
-                Box enemy = enemies.get(j);
+                Enemy enemy = enemies.get(j);
 
                 // Çarpışmayı kontrol et
                 if (isColliding(enemy,bullet)) {
@@ -94,7 +99,11 @@ public class MyFrame extends JFrame {
             }
         }
 
-        for (Box enemy : enemies) {
+        for (Enemy enemy : enemies) {
+            enemy.moveToPlayer(player);
+        }
+
+        for (Enemy enemy : enemies) {
             if (player.intersects(enemy)) {
                 gameOver = true;
                 System.out.println("Game Over");
