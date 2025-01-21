@@ -3,9 +3,9 @@ import java.util.ArrayList;
 
 public class Controller {
 
-        private ArrayList<Bullet> bullet_list = new ArrayList<>();
-        MyFrame myFrame;
-        Bullet bullet;
+    private ArrayList<Bullet> bullet_list = new ArrayList<>();
+    MyFrame myFrame;
+    Bullet bullet;
 
     public Controller(MyFrame myFrame) {
         this.myFrame = myFrame;
@@ -15,7 +15,7 @@ public class Controller {
             for(int i=0;i<bullet_list.size();i++){
                 bullet = bullet_list.get(i);
                 bullet.move();
-                if (bullet.x < 0 || bullet.x > myFrame.getWidth()) {
+                if (bullet.x < 0 || bullet.x > myFrame.getWidth() || bullet.y < 0 || bullet.y > myFrame.getHeight()) {
                     removeBullet(i);
                     i--;
                 }
@@ -38,8 +38,8 @@ public class Controller {
             return bullet_list.size();
         }
 
-        public void addBullet(Bullet block){
-            bullet_list.add(block);
+        public void addBullet(Bullet bullet){
+            bullet_list.add(bullet);
         }
 
         public void removeBullet(int block){

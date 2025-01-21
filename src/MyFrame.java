@@ -33,7 +33,7 @@ public class MyFrame extends JFrame {
         // Oyun döngüsü
         Timer timer = new Timer(30, e -> {
             if (!gameOver) {
-
+                player.update();
                 for (Enemy enemy : enemies) {
                     enemy.moveToPlayer(player);
                 }
@@ -76,7 +76,6 @@ public class MyFrame extends JFrame {
                 bullet.y < enemy.y + enemy.height && // Merminin üst kenarı düşmanın alt kenarını geçmiyor
                 bullet.y + bullet.height > enemy.y;  // Merminin alt kenarı düşmanın üst kenarını geçmiyor
     }
-
 
     public void checkCollisions(){
 
@@ -123,9 +122,25 @@ public class MyFrame extends JFrame {
             if(!gameOver){
                 player.keyPressed(e);
 
-                if(e.getKeyCode() == KeyEvent.VK_SPACE){
-                    controller.addBullet(new Bullet(player.x + 12,player.y + 12,5,5));
+                // Mermi oluşturma
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    int dx = 0, dy = 0;
+
+                    // Oyuncunun basılı tuttuğu yön tuşlarına göre merminin hareket yönünü belirleyin
+                    if (player.pressedKeys.contains(KeyEvent.VK_W)) dy = -1; // Yukarı
+                    if (player.pressedKeys.contains(KeyEvent.VK_S)) dy = 1;  // Aşağı
+                    if (player.pressedKeys.contains(KeyEvent.VK_A)) dx = -1; // Sol
+                    if (player.pressedKeys.contains(KeyEvent.VK_D)) dx = 1;  // Sağ
+
+                    if (dx == 0 && dy == 0) {
+                        dx = 1;  // X ekseninde sağa doğru fırlat
+                    }
+
+                    controller.addBullet(new Bullet(player.x + player.width / 2, player.y + player.height / 2, 5, 5, dx, dy));
+
                 }
+
+
                 checkCollisions();
                 repaint();
 
@@ -134,8 +149,14 @@ public class MyFrame extends JFrame {
 
             }
 
+            }
+        @Override
+        public void keyReleased(KeyEvent e) {
+            player.keyReleased(e);
         }
+
+        }
+
     }
 
-}
 
