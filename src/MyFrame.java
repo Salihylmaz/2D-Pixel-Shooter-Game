@@ -136,10 +136,9 @@ public class MyFrame extends JFrame {
                         dx = 1;  // X ekseninde sağa doğru fırlat
                     }
 
-                    controller.addBullet(new Bullet(player.x + player.width / 2, player.y + player.height / 2, 5, 5, dx, dy));
+                    controller.addBullet(new Bullet(player.x + player.width / 2, player.y + player.height / 2, 5, 5, player.lastDx, player.lastDy));
 
                 }
-
 
                 checkCollisions();
                 repaint();

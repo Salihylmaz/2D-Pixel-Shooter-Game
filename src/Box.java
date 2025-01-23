@@ -4,10 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Box extends Rectangle {
-    int hareketMiktarı = 4;
+    int hareketMiktarı = 3;
     Color color;
     boolean isActive;
     public Set<Integer> pressedKeys; // Basılı tuşları tutar
+    public int lastDx = 0; // En son hareketin X yönü
+    public int lastDy = 0; // En son hareketin Y yönü
 
     Box(int x,int y,int width, int height,Color color){
         this.x=x;
@@ -33,6 +35,16 @@ public class Box extends Rectangle {
 
         this.x += dx * hareketMiktarı * movementFactor;
         this.y += dy * hareketMiktarı * movementFactor;
+
+        // Eğer hareket varsa, yönü güncelle
+        if (dx != 0 || dy != 0) {
+            lastDx = dx;
+            lastDy = dy;
+        }
+        if (lastDx == 0 && lastDy == 0) {
+            lastDx = 1; // Varsayılan olarak sağa gitsin
+        }
+
     }
 
     public void keyPressed(KeyEvent e){
