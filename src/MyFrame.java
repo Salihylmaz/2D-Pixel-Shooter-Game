@@ -2,7 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MyFrame extends JFrame {
 
@@ -12,18 +14,23 @@ public class MyFrame extends JFrame {
     ArrayList<Bullet> bullets;
     ArrayList<Enemy> enemies;
     boolean gameOver;
+    boolean win;
     private Controller controller;
+    Enemy enemy_deneme;
+    Random rand = new Random();
+
 
     MyFrame(){
-        player = new Box(50,50,30,30,Color.BLUE);
+        player = new Box(100,100,30,30,Color.BLUE);
         enemies = new ArrayList<>();
         bullets = new ArrayList<>();
         controller = new Controller(this);
         gameOver = false;
+        win = false;
 
-        enemies.add(new Enemy(300,250,30,30,Color.RED));
-        enemies.add(new Enemy(300,150,30,30,Color.RED));
-        enemies.add(new Enemy(200,150,30,30,Color.RED));
+        enemies.add(new Enemy(500,250,30,30,Color.RED));
+        //enemies.add(new Enemy(300,150,30,30,Color.RED));
+        //enemies.add(new Enemy(200,150,30,30,Color.RED));
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(500,500);
@@ -37,13 +44,33 @@ public class MyFrame extends JFrame {
                 for (Enemy enemy : enemies) {
                     enemy.moveToPlayer(player);
                 }
-
+               // enemy_deneme.spawn();
                 controller.bulletMove();
                 checkCollisions();
                 repaint();
             }
         });
         timer.start();
+        Timer timer_enemy = new Timer(500, e -> {
+            if(!gameOver)
+                spawn();
+        });
+        timer_enemy.start();
+    }
+
+    public void spawn(){
+        int rand_x = rand.nextInt(750) - 100; // X ekseninde -100 ile 650 arasında değer
+        int rand_y = rand.nextInt(750) - 100;
+
+        if ((rand_x < 0 || rand_x > 600 || rand_y < 0 || rand_y > 600) && enemies.size() < 10) {
+            enemies.add(new Enemy(rand_x, rand_y, 30, 30, Color.RED));
+            System.out.println("Total enemies: " + enemies.size());
+        }
+
+        for(Enemy enemy : enemies){
+            System.out.println("Total enemies: " + enemies.size());
+            System.out.println("Enemy spawned at: (" + rand_x + ", " + rand_y + ")");
+        }
 
     }
 
@@ -65,7 +92,11 @@ public class MyFrame extends JFrame {
         if(gameOver == true){
             g.setColor(Color.RED);
             g.setFont(new Font("Times",Font.PLAIN,45));
-            g.drawString("Game OVER",120,150);
+            if (win) {
+                g.drawString("You Win!", 150, 150);
+            } else {
+                g.drawString("Game Over", 120, 150);
+            }
         }
 
     }
@@ -91,7 +122,6 @@ public class MyFrame extends JFrame {
                     i--;
                     enemies.remove(j);
                     j--;
-
                     System.out.println("Enemy hit!");
                     break;
                 }
@@ -105,15 +135,29 @@ public class MyFrame extends JFrame {
         for (Enemy enemy : enemies) {
             if (player.intersects(enemy)) {
                 gameOver = true;
-                System.out.println("Game Over");
+                win = false;
                 break;
             }
         }
         // Tüm düşmanlar vurulursa
         if (enemies.isEmpty()) {
             gameOver = true;
-            System.out.println("You Win!");
+            win = true;
         }
+    }
+
+    public void restartGame() {
+        player = new Box(100, 100, 30, 30, Color.BLUE);
+        enemies.clear();
+        bullets.clear();
+        enemies.add(new Enemy(500, 250, 30, 30, Color.RED));
+        gameOver = false;
+        win = false;
+        repaint();
+    }
+
+    public void quitGame() {
+        System.exit(0);
     }
 
     public class AL extends KeyAdapter{
@@ -145,7 +189,11 @@ public class MyFrame extends JFrame {
 
             }
             else{
-
+                if (e.getKeyCode() == KeyEvent.VK_R) {
+                    restartGame(); // R tuşu ile yeniden başlat
+                } else if (e.getKeyCode() == KeyEvent.VK_Q) {
+                    quitGame(); // Q tuşu ile çıkış yap
+                }
             }
 
             }
@@ -154,8 +202,6 @@ public class MyFrame extends JFrame {
             player.keyReleased(e);
         }
 
-        }
-
     }
 
-
+}

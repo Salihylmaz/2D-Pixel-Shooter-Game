@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Box extends Rectangle {
-    int hareketMiktarı = 3;
+    int hareketMiktarı = 4;
     Color color;
     boolean isActive;
     public Set<Integer> pressedKeys; // Basılı tuşları tutar
