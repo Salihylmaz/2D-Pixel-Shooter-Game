@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -16,9 +15,10 @@ public class MyFrame extends JFrame {
     boolean gameOver;
     boolean win;
     private Controller controller;
-    Enemy enemy_deneme;
     Random rand = new Random();
-
+    int score = 0;
+    private JLabel scoreLabel;
+    private GamePanel gamePanel;
 
     MyFrame(){
         player = new Box(100,100,30,30,Color.BLUE);
@@ -32,10 +32,23 @@ public class MyFrame extends JFrame {
         //enemies.add(new Enemy(300,150,30,30,Color.RED));
         //enemies.add(new Enemy(200,150,30,30,Color.RED));
 
+        this.setLayout(new BorderLayout());
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(500,500);
         this.setVisible(true);
         this.addKeyListener(new AL());
+
+        // Score label
+        scoreLabel = new JLabel("Score: " + score);
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        this.add(scoreLabel, BorderLayout.NORTH);
+
+        // Custom game panel
+        gamePanel = new GamePanel(this,controller);
+        this.add(gamePanel, BorderLayout.CENTER);
+       // this.setVisible(true);
 
         // Oyun döngüsü
         Timer timer = new Timer(30, e -> {
@@ -47,7 +60,8 @@ public class MyFrame extends JFrame {
                // enemy_deneme.spawn();
                 controller.bulletMove();
                 checkCollisions();
-                repaint();
+                gamePanel.revalidate(); // Force UI update
+                gamePanel.repaint();
             }
         });
         timer.start();
@@ -74,10 +88,21 @@ public class MyFrame extends JFrame {
 
     }
 
+    public void increaseScore() {
+        score++;
+        scoreLabel.setText("Score: " + score);
+    }
+/*
     public void paint(Graphics g){
+
         image = createImage(this.getWidth(), this.getHeight());
         graphics = image.getGraphics();
         g.drawImage(image,0,0, this);
+
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.drawString("Score: " + score, 20, 30);
+
 
         if(player.isActive)
             player.draw(g);
@@ -99,7 +124,7 @@ public class MyFrame extends JFrame {
             }
         }
 
-    }
+    }*/
 
     public boolean isColliding(Enemy enemy, Bullet bullet) {
         return bullet.x < enemy.x + enemy.width &&  // Merminin sol kenarı düşmanın sağ kenarını geçmiyor
@@ -123,6 +148,8 @@ public class MyFrame extends JFrame {
                     enemies.remove(j);
                     j--;
                     System.out.println("Enemy hit!");
+                    increaseScore();
+                    System.out.println("Score: "+ score);
                     break;
                 }
             }
