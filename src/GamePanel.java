@@ -4,15 +4,18 @@ import java.awt.*;
 public class GamePanel extends JPanel {
     private MyFrame frame;
     private Controller controller;
-
+    Image img;
     public GamePanel(MyFrame frame, Controller controller) {
         this.frame = frame;
         this.controller = controller;
+        img = Toolkit.getDefaultToolkit().createImage("res\\images\\res.jpg");
+
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        g.drawImage(img, 0, 0, null);
 
         if (frame.player.isActive)
             frame.player.draw(g);

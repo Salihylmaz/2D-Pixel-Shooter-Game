@@ -7,8 +7,7 @@ import java.util.Random;
 
 public class MyFrame extends JFrame {
 
-    Image image;
-    Graphics graphics;
+    Sound sound = new Sound();
     Box player;
     ArrayList<Bullet> bullets;
     ArrayList<Enemy> enemies;
@@ -30,7 +29,6 @@ public class MyFrame extends JFrame {
 
         enemies.add(new Enemy(500,250,30,30,Color.RED));
         //enemies.add(new Enemy(300,150,30,30,Color.RED));
-        //enemies.add(new Enemy(200,150,30,30,Color.RED));
 
         this.setLayout(new BorderLayout());
 
@@ -45,10 +43,8 @@ public class MyFrame extends JFrame {
         scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
         this.add(scoreLabel, BorderLayout.NORTH);
 
-        // Custom game panel
         gamePanel = new GamePanel(this,controller);
         this.add(gamePanel, BorderLayout.CENTER);
-       // this.setVisible(true);
 
         // Oyun döngüsü
         Timer timer = new Timer(30, e -> {
@@ -73,10 +69,10 @@ public class MyFrame extends JFrame {
     }
 
     public void spawn(){
-        int rand_x = rand.nextInt(750) - 100; // X ekseninde -100 ile 650 arasında değer
-        int rand_y = rand.nextInt(750) - 100;
+        int rand_x = rand.nextInt(650) - 100; // X ekseninde -100 ile 550 arasında değer
+        int rand_y = rand.nextInt(650) - 100;
 
-        if ((rand_x < 0 || rand_x > 600 || rand_y < 0 || rand_y > 600) && enemies.size() < 10) {
+        if ((rand_x < 0 || rand_x > 500 || rand_y < 0 || rand_y > 500) && enemies.size() < 10) {
             enemies.add(new Enemy(rand_x, rand_y, 30, 30, Color.RED));
             System.out.println("Total enemies: " + enemies.size());
         }
@@ -92,39 +88,6 @@ public class MyFrame extends JFrame {
         score++;
         scoreLabel.setText("Score: " + score);
     }
-/*
-    public void paint(Graphics g){
-
-        image = createImage(this.getWidth(), this.getHeight());
-        graphics = image.getGraphics();
-        g.drawImage(image,0,0, this);
-
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + score, 20, 30);
-
-
-        if(player.isActive)
-            player.draw(g);
-
-        for(Enemy enemy : enemies){ //Birden fazla düşman ekleyebiliyorum bu sayede
-            enemy.draw(g);
-        }
-        for (Bullet bullet : bullets) {
-            bullet.draw(g);
-        }
-        controller.drawBullet(g);
-        if(gameOver == true){
-            g.setColor(Color.RED);
-            g.setFont(new Font("Times",Font.PLAIN,45));
-            if (win) {
-                g.drawString("You Win!", 150, 150);
-            } else {
-                g.drawString("Game Over", 120, 150);
-            }
-        }
-
-    }*/
 
     public boolean isColliding(Enemy enemy, Bullet bullet) {
         return bullet.x < enemy.x + enemy.width &&  // Merminin sol kenarı düşmanın sağ kenarını geçmiyor
@@ -161,6 +124,7 @@ public class MyFrame extends JFrame {
 
         for (Enemy enemy : enemies) {
             if (player.intersects(enemy)) {
+                sound.playGameOverSound();
                 gameOver = true;
                 win = false;
                 break;
@@ -196,7 +160,7 @@ public class MyFrame extends JFrame {
                 // Mermi oluşturma
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     int dx = 0, dy = 0;
-
+                    sound.playBulletSound();
                     // Oyuncunun basılı tuttuğu yön tuşlarına göre merminin hareket yönünü belirleyin
                     if (player.pressedKeys.contains(KeyEvent.VK_W)) dy = -1; // Yukarı
                     if (player.pressedKeys.contains(KeyEvent.VK_S)) dy = 1;  // Aşağı
