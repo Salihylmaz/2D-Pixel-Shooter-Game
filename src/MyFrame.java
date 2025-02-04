@@ -8,9 +8,8 @@ import java.util.Random;
 public class MyFrame extends JFrame {
 
     Sound sound = new Sound();
-    Box player;
+    Player player;
     ArrayList<Bullet> bullets;
-    ArrayList<Enemy> enemies;
     boolean gameOver;
     boolean win;
     private Controller controller;
@@ -20,15 +19,23 @@ public class MyFrame extends JFrame {
     private GamePanel gamePanel;
 
     MyFrame(){
-        player = new Box(100,100,30,30,Color.BLUE);
-        enemies = new ArrayList<>();
+        player = new Player(100,100,30,30);
+
+        //enemies = new ArrayList<>();
         bullets = new ArrayList<>();
         controller = new Controller(this);
         gameOver = false;
         win = false;
 
-        enemies.add(new Enemy(500,250,30,30,Color.RED));
-        //enemies.add(new Enemy(300,150,30,30,Color.RED));
+        Enemy.enemies.clear();
+
+        // Düşman sprite'ını sadece 1 kez yükle
+        Enemy.loadSprite();
+
+        // Başlangıçta bir düşman oluştur
+        Enemy.spawn();
+
+        Enemy.enemies.add(new Enemy(500,250,30,30));
 
         this.setLayout(new BorderLayout());
 
@@ -50,10 +57,10 @@ public class MyFrame extends JFrame {
         Timer timer = new Timer(30, e -> {
             if (!gameOver) {
                 player.update();
-                for (Enemy enemy : enemies) {
-                    enemy.moveToPlayer(player);
+                for (Enemy enemy : Enemy.enemies) {
+                    //enemy.moveToPlayer(player);
+                    enemy.update(player);
                 }
-               // enemy_deneme.spawn();
                 controller.bulletMove();
                 checkCollisions();
                 gamePanel.revalidate(); // Force UI update
@@ -63,25 +70,9 @@ public class MyFrame extends JFrame {
         timer.start();
         Timer timer_enemy = new Timer(500, e -> {
             if(!gameOver)
-                spawn();
+                Enemy.spawn();
         });
         timer_enemy.start();
-    }
-
-    public void spawn(){
-        int rand_x = rand.nextInt(650) - 100; // X ekseninde -100 ile 550 arasında değer
-        int rand_y = rand.nextInt(650) - 100;
-
-        if ((rand_x < 0 || rand_x > 500 || rand_y < 0 || rand_y > 500) && enemies.size() < 10) {
-            enemies.add(new Enemy(rand_x, rand_y, 30, 30, Color.RED));
-            System.out.println("Total enemies: " + enemies.size());
-        }
-
-        for(Enemy enemy : enemies){
-            System.out.println("Total enemies: " + enemies.size());
-            System.out.println("Enemy spawned at: (" + rand_x + ", " + rand_y + ")");
-        }
-
     }
 
     public void increaseScore() {
@@ -101,14 +92,14 @@ public class MyFrame extends JFrame {
         for (int i = 0; i < controller.bulletSize(); i++) {
             Bullet bullet = controller.bulletGet(i);
 
-            for (int j = 0; j < enemies.size(); j++) {
-                Enemy enemy = enemies.get(j);
+            for (int j = 0; j < Enemy.enemies.size(); j++) {
+                Enemy enemy = Enemy.enemies.get(j);
 
                 // Çarpışmayı kontrol et
                 if (isColliding(enemy,bullet)) {
                     controller.removeBullet(i);
                     i--;
-                    enemies.remove(j);
+                    Enemy.enemies.remove(j);
                     j--;
                     System.out.println("Enemy hit!");
                     increaseScore();
@@ -118,11 +109,11 @@ public class MyFrame extends JFrame {
             }
         }
 
-        for (Enemy enemy : enemies) {
-            enemy.moveToPlayer(player);
+        for (Enemy enemy : Enemy.enemies) {
+            enemy.update(player);
         }
 
-        for (Enemy enemy : enemies) {
+        for (Enemy enemy : Enemy.enemies) {
             if (player.intersects(enemy)) {
                 sound.playGameOverSound();
                 gameOver = true;
@@ -131,17 +122,17 @@ public class MyFrame extends JFrame {
             }
         }
         // Tüm düşmanlar vurulursa
-        if (enemies.isEmpty()) {
+        if (Enemy.enemies.isEmpty()) {
             gameOver = true;
             win = true;
         }
     }
 
     public void restartGame() {
-        player = new Box(100, 100, 30, 30, Color.BLUE);
-        enemies.clear();
+        player = new Player(100, 100, 30, 30);
+        Enemy.enemies.clear();
         bullets.clear();
-        enemies.add(new Enemy(500, 250, 30, 30, Color.RED));
+        Enemy.enemies.add(new Enemy(500, 250, 30, 30));
         gameOver = false;
         win = false;
         repaint();

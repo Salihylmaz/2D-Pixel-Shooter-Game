@@ -1,60 +1,91 @@
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Random;
 
 
-public class Enemy extends Rectangle {
-    Color color;
+public class Enemy extends Entity {
     boolean isActive;
-    MyFrame myFrame;
-    ArrayList<Enemy> enemies;
-    Random rand = new Random();
+    public static ArrayList<Enemy> enemies = new ArrayList<>();
+    static Random rand = new Random();
+    private static BufferedImage enemySprite; // Tek bir sprite, tüm düşmanlar için ortak olacak.
 
-    Enemy(int x,int y,int width, int height,Color color){
-        this.x=x;
-        this.y=y;
-        this.width = width;
-        this.height = height;
-        this.color= color;
+    public Enemy(int x, int y, int width, int height){
+        super(x,y,width,height,enemySprite);
         this.isActive = true;
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+    }
+
+    private static BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
+        Image tmp = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = resizedImage.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+
+        return resizedImage;
+    }
+
+    public static void loadSprite() {
+        try {
+            BufferedImage original = ImageIO.read(new File("res/characters/enemy.png"));
+            enemySprite = resizeImage(original, 30, 30); // 30x30 boyutunda küçült
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update() {
 
     }
 
-    public void spawn(){
-        int rand_x = rand.nextInt(450);
-        int rand_x_negative = rand.nextInt(0);//negatif x olustur ikinci bir add kısmına koy
-        int rand_y = rand.nextInt(450);
-        if (rand_x < 0 || rand_x > myFrame.getWidth() || rand_y < 0 || rand_y > myFrame.getHeight()) {
+    @Override
+    public void update(Player player) {
+        int distanceX = Math.abs(this.getX() - player.getX());
+        int distanceY = Math.abs(this.getY() - player.getY());
 
-            enemies.add(new Enemy(rand_x,rand_y,30,30,Color.RED));
+        if (distanceX > distanceY) {
+            if (this.getX() < player.getX()) {
+                this.setX(this.getX() + 1);
+            } else if (this.getX() > player.getX()) {
+                this.setX(this.getX() - 1);
+            }
+        } else {
+            if (this.getY() < player.getY()) {
+                this.setY(this.getY() + 1);
+            } else if (this.getY() > player.getY()) {
+                this.setY(this.getY() - 1);
+            }
+        }
+    }
 
+
+    public static void spawn(){
+        int rand_x = rand.nextInt(650) - 100; // X ekseninde -100 ile 550 arasında değer
+        int rand_y = rand.nextInt(650) - 100;
+
+        if ((rand_x < 0 || rand_x > 500 || rand_y < 0 || rand_y > 500) && enemies.size() < 10) {
+            enemies.add(new Enemy(rand_x, rand_y, 30, 30));
+            System.out.println("Total enemies: " + enemies.size());
+        }
+
+        for(Enemy enemy : enemies){
+            System.out.println("Total enemies: " + enemies.size());
+            System.out.println("Enemy spawned at: (" + rand_x + ", " + rand_y + ")");
         }
     }
 
     public void draw(Graphics g){
-        g.setColor(this.color);
-        g.fillRect(this.x, this.y, this.width, this.height);
-    }
-
-    public void moveToPlayer(Box player){
-        int distanceX = Math.abs(this.x - player.x);
-        int distanceY = Math.abs(this.y - player.y);
-        
-        if (distanceX > distanceY) {
-            if (this.x < player.x) {
-                this.x++;
-            } else if (this.x > player.x) {
-                this.x--;
-            }
-        } else {
-            if (this.y < player.y) {
-                this.y++; // Aşağı doğru hareket
-            } else if (this.y > player.y) {
-                this.y--; // Yukarı doğru hareket
-            }
-        }
-
+        g.drawImage(this.getSprite(), this.getX(), this.getY(), null);
     }
 
 }

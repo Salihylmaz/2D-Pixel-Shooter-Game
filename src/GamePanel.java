@@ -17,10 +17,9 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         g.drawImage(img, 0, 0, null);
 
-        if (frame.player.isActive)
-            frame.player.draw(g);
+        frame.player.draw(g);
 
-        for (Enemy enemy : frame.enemies) {
+        for (Enemy enemy : Enemy.enemies) {
             enemy.draw(g);
         }
         for (Bullet bullet : frame.bullets) {
